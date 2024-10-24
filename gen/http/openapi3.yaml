@@ -11,9 +11,9 @@ paths:
             tags:
                 - invoices
             summary: 指定期間内に支払いが発生する請求書データの一覧を取得
-            operationId: invoices#fetch
+            operationId: invoices#fetch list
             parameters:
-                - name: user-id
+                - name: user_id
                   in: query
                   description: ユーザID
                   allowEmptyValue: true
@@ -23,6 +23,26 @@ paths:
                     description: ユーザID
                     example: Eum exercitationem dicta hic veniam deserunt.
                   example: Quo quod.
+                - name: from_date
+                  in: query
+                  description: 指定する期間の開始日
+                  allowEmptyValue: true
+                  required: true
+                  schema:
+                    type: string
+                    description: 指定する期間の開始日
+                    example: "2024-10-01"
+                  example: "2024-10-01"
+                - name: to_date
+                  in: query
+                  description: 指定する期間の最終日
+                  allowEmptyValue: true
+                  required: true
+                  schema:
+                    type: string
+                    description: 指定する期間の最終日
+                    example: "2024-10-25"
+                  example: "2024-10-25"
             responses:
                 "200":
                     description: OK response.

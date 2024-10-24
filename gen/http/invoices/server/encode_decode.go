@@ -17,42 +17,53 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// EncodeFetchResponse returns an encoder for responses returned by the
-// invoices fetch endpoint.
-func EncodeFetchResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeFetchListResponse returns an encoder for responses returned by the
+// invoices fetch list endpoint.
+func EncodeFetchListResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		res, _ := v.([]*invoices.Invoice)
 		enc := encoder(ctx, w)
-		body := NewFetchResponseBody(res)
+		body := NewFetchListResponseBody(res)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeFetchRequest returns a decoder for requests sent to the invoices fetch
-// endpoint.
-func DecodeFetchRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeFetchListRequest returns a decoder for requests sent to the invoices
+// fetch list endpoint.
+func DecodeFetchListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			userID string
-			err    error
+			userID   string
+			fromDate string
+			toDate   string
+			err      error
 		)
-		userID = r.URL.Query().Get("user-id")
+		qp := r.URL.Query()
+		userID = qp.Get("user_id")
 		if userID == "" {
-			err = goa.MergeErrors(err, goa.MissingFieldError("user-id", "query string"))
+			err = goa.MergeErrors(err, goa.MissingFieldError("user_id", "query string"))
+		}
+		fromDate = qp.Get("from_date")
+		if fromDate == "" {
+			err = goa.MergeErrors(err, goa.MissingFieldError("from_date", "query string"))
+		}
+		toDate = qp.Get("to_date")
+		if toDate == "" {
+			err = goa.MergeErrors(err, goa.MissingFieldError("to_date", "query string"))
 		}
 		if err != nil {
 			return nil, err
 		}
-		payload := NewFetchPayload(userID)
+		payload := NewFetchListPayload(userID, fromDate, toDate)
 
 		return payload, nil
 	}
 }
 
-// EncodeFetchError returns an encoder for errors returned by the fetch
-// invoices endpoint.
-func EncodeFetchError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeFetchListError returns an encoder for errors returned by the fetch
+// list invoices endpoint.
+func EncodeFetchListError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -69,7 +80,7 @@ func EncodeFetchError(encoder func(context.Context, http.ResponseWriter) goahttp
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewFetchBadRequestResponseBody(res)
+				body = NewFetchListBadRequestResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -83,7 +94,7 @@ func EncodeFetchError(encoder func(context.Context, http.ResponseWriter) goahttp
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewFetchInternalServerErrorResponseBody(res)
+				body = NewFetchListInternalServerErrorResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusInternalServerError)

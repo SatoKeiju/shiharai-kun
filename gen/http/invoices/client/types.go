@@ -12,19 +12,20 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// FetchResponseBody is the type of the "invoices" service "fetch" endpoint
-// HTTP response body.
-type FetchResponseBody []*InvoiceResponse
+// FetchListResponseBody is the type of the "invoices" service "fetch list"
+// endpoint HTTP response body.
+type FetchListResponseBody []*InvoiceResponse
 
-// FetchBadRequestResponseBody is the type of the "invoices" service "fetch"
-// endpoint HTTP response body for the "bad_request" error.
-type FetchBadRequestResponseBody struct {
+// FetchListBadRequestResponseBody is the type of the "invoices" service "fetch
+// list" endpoint HTTP response body for the "bad_request" error.
+type FetchListBadRequestResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 }
 
-// FetchInternalServerErrorResponseBody is the type of the "invoices" service
-// "fetch" endpoint HTTP response body for the "internal_server_error" error.
-type FetchInternalServerErrorResponseBody struct {
+// FetchListInternalServerErrorResponseBody is the type of the "invoices"
+// service "fetch list" endpoint HTTP response body for the
+// "internal_server_error" error.
+type FetchListInternalServerErrorResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 }
 
@@ -50,9 +51,9 @@ type InvoiceResponse struct {
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 }
 
-// NewFetchInvoiceOK builds a "invoices" service "fetch" endpoint result from a
-// HTTP "OK" response.
-func NewFetchInvoiceOK(body []*InvoiceResponse) []*invoices.Invoice {
+// NewFetchListInvoiceOK builds a "invoices" service "fetch list" endpoint
+// result from a HTTP "OK" response.
+func NewFetchListInvoiceOK(body []*InvoiceResponse) []*invoices.Invoice {
 	v := make([]*invoices.Invoice, len(body))
 	for i, val := range body {
 		v[i] = unmarshalInvoiceResponseToInvoicesInvoice(val)
@@ -61,9 +62,9 @@ func NewFetchInvoiceOK(body []*InvoiceResponse) []*invoices.Invoice {
 	return v
 }
 
-// NewFetchBadRequest builds a invoices service fetch endpoint bad_request
-// error.
-func NewFetchBadRequest(body *FetchBadRequestResponseBody) *invoices.ErrBadRequest {
+// NewFetchListBadRequest builds a invoices service fetch list endpoint
+// bad_request error.
+func NewFetchListBadRequest(body *FetchListBadRequestResponseBody) *invoices.ErrBadRequest {
 	v := &invoices.ErrBadRequest{
 		Message: *body.Message,
 	}
@@ -71,9 +72,9 @@ func NewFetchBadRequest(body *FetchBadRequestResponseBody) *invoices.ErrBadReque
 	return v
 }
 
-// NewFetchInternalServerError builds a invoices service fetch endpoint
-// internal_server_error error.
-func NewFetchInternalServerError(body *FetchInternalServerErrorResponseBody) *invoices.ErrInternalServerError {
+// NewFetchListInternalServerError builds a invoices service fetch list
+// endpoint internal_server_error error.
+func NewFetchListInternalServerError(body *FetchListInternalServerErrorResponseBody) *invoices.ErrInternalServerError {
 	v := &invoices.ErrInternalServerError{
 		Message: *body.Message,
 	}
@@ -81,18 +82,18 @@ func NewFetchInternalServerError(body *FetchInternalServerErrorResponseBody) *in
 	return v
 }
 
-// ValidateFetchBadRequestResponseBody runs the validations defined on
-// fetch_bad_request_response_body
-func ValidateFetchBadRequestResponseBody(body *FetchBadRequestResponseBody) (err error) {
+// ValidateFetchListBadRequestResponseBody runs the validations defined on
+// fetch list_bad_request_response_body
+func ValidateFetchListBadRequestResponseBody(body *FetchListBadRequestResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
 	return
 }
 
-// ValidateFetchInternalServerErrorResponseBody runs the validations defined on
-// fetch_internal_server_error_response_body
-func ValidateFetchInternalServerErrorResponseBody(body *FetchInternalServerErrorResponseBody) (err error) {
+// ValidateFetchListInternalServerErrorResponseBody runs the validations
+// defined on fetch list_internal_server_error_response_body
+func ValidateFetchListInternalServerErrorResponseBody(body *FetchListInternalServerErrorResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

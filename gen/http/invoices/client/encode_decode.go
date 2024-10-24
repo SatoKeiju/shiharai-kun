@@ -19,13 +19,13 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// BuildFetchRequest instantiates a HTTP request object with method and path
-// set to call the "invoices" service "fetch" endpoint
-func (c *Client) BuildFetchRequest(ctx context.Context, v any) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: FetchInvoicesPath()}
+// BuildFetchListRequest instantiates a HTTP request object with method and
+// path set to call the "invoices" service "fetch list" endpoint
+func (c *Client) BuildFetchListRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: FetchListInvoicesPath()}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("invoices", "fetch", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("invoices", "fetch list", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -34,29 +34,31 @@ func (c *Client) BuildFetchRequest(ctx context.Context, v any) (*http.Request, e
 	return req, nil
 }
 
-// EncodeFetchRequest returns an encoder for requests sent to the invoices
-// fetch server.
-func EncodeFetchRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+// EncodeFetchListRequest returns an encoder for requests sent to the invoices
+// fetch list server.
+func EncodeFetchListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
 	return func(req *http.Request, v any) error {
-		p, ok := v.(*invoices.FetchPayload)
+		p, ok := v.(*invoices.FetchListPayload)
 		if !ok {
-			return goahttp.ErrInvalidType("invoices", "fetch", "*invoices.FetchPayload", v)
+			return goahttp.ErrInvalidType("invoices", "fetch list", "*invoices.FetchListPayload", v)
 		}
 		values := req.URL.Query()
-		values.Add("user-id", p.UserID)
+		values.Add("user_id", p.UserID)
+		values.Add("from_date", p.FromDate)
+		values.Add("to_date", p.ToDate)
 		req.URL.RawQuery = values.Encode()
 		return nil
 	}
 }
 
-// DecodeFetchResponse returns a decoder for responses returned by the invoices
-// fetch endpoint. restoreBody controls whether the response body should be
-// restored after having been read.
-// DecodeFetchResponse may return the following errors:
+// DecodeFetchListResponse returns a decoder for responses returned by the
+// invoices fetch list endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeFetchListResponse may return the following errors:
 //   - "bad_request" (type *invoices.ErrBadRequest): http.StatusBadRequest
 //   - "internal_server_error" (type *invoices.ErrInternalServerError): http.StatusInternalServerError
 //   - error: internal error
-func DecodeFetchResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+func DecodeFetchListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
 		if restoreBody {
 			b, err := io.ReadAll(resp.Body)
@@ -73,12 +75,12 @@ func DecodeFetchResponse(decoder func(*http.Response) goahttp.Decoder, restoreBo
 		switch resp.StatusCode {
 		case http.StatusOK:
 			var (
-				body FetchResponseBody
+				body FetchListResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("invoices", "fetch", err)
+				return nil, goahttp.ErrDecodingError("invoices", "fetch list", err)
 			}
 			for _, e := range body {
 				if e != nil {
@@ -88,41 +90,41 @@ func DecodeFetchResponse(decoder func(*http.Response) goahttp.Decoder, restoreBo
 				}
 			}
 			if err != nil {
-				return nil, goahttp.ErrValidationError("invoices", "fetch", err)
+				return nil, goahttp.ErrValidationError("invoices", "fetch list", err)
 			}
-			res := NewFetchInvoiceOK(body)
+			res := NewFetchListInvoiceOK(body)
 			return res, nil
 		case http.StatusBadRequest:
 			var (
-				body FetchBadRequestResponseBody
+				body FetchListBadRequestResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("invoices", "fetch", err)
+				return nil, goahttp.ErrDecodingError("invoices", "fetch list", err)
 			}
-			err = ValidateFetchBadRequestResponseBody(&body)
+			err = ValidateFetchListBadRequestResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("invoices", "fetch", err)
+				return nil, goahttp.ErrValidationError("invoices", "fetch list", err)
 			}
-			return nil, NewFetchBadRequest(&body)
+			return nil, NewFetchListBadRequest(&body)
 		case http.StatusInternalServerError:
 			var (
-				body FetchInternalServerErrorResponseBody
+				body FetchListInternalServerErrorResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("invoices", "fetch", err)
+				return nil, goahttp.ErrDecodingError("invoices", "fetch list", err)
 			}
-			err = ValidateFetchInternalServerErrorResponseBody(&body)
+			err = ValidateFetchListInternalServerErrorResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("invoices", "fetch", err)
+				return nil, goahttp.ErrValidationError("invoices", "fetch list", err)
 			}
-			return nil, NewFetchInternalServerError(&body)
+			return nil, NewFetchListInternalServerError(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("invoices", "fetch", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("invoices", "fetch list", resp.StatusCode, string(body))
 		}
 	}
 }

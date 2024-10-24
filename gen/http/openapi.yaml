@@ -19,11 +19,21 @@ paths:
             tags:
                 - invoices
             summary: 指定期間内に支払いが発生する請求書データの一覧を取得
-            operationId: invoices#fetch
+            operationId: invoices#fetch list
             parameters:
-                - name: user-id
+                - name: user_id
                   in: query
                   description: ユーザID
+                  required: true
+                  type: string
+                - name: from_date
+                  in: query
+                  description: 指定する期間の開始日
+                  required: true
+                  type: string
+                - name: to_date
+                  in: query
+                  description: 指定する期間の最終日
                   required: true
                   type: string
             responses:
@@ -51,7 +61,7 @@ definitions:
             message:
                 type: string
                 example: 不正なリクエスト
-        description: fetch_bad_request_response_body result type (default view)
+        description: fetch list_bad_request_response_body result type (default view)
         example:
             message: 不正なリクエスト
         required:
@@ -63,7 +73,7 @@ definitions:
             message:
                 type: string
                 example: サーバーエラー
-        description: fetch_internal_server_error_response_body result type (default view)
+        description: fetch list_internal_server_error_response_body result type (default view)
         example:
             message: サーバーエラー
         required:

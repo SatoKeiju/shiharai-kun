@@ -11,15 +11,25 @@ import (
 	invoices "github.com/SatoKeiju/shiharai-kun/gen/invoices"
 )
 
-// BuildFetchPayload builds the payload for the invoices fetch endpoint from
-// CLI flags.
-func BuildFetchPayload(invoicesFetchUserID string) (*invoices.FetchPayload, error) {
+// BuildFetchListPayload builds the payload for the invoices fetch list
+// endpoint from CLI flags.
+func BuildFetchListPayload(invoicesFetchListUserID string, invoicesFetchListFromDate string, invoicesFetchListToDate string) (*invoices.FetchListPayload, error) {
 	var userID string
 	{
-		userID = invoicesFetchUserID
+		userID = invoicesFetchListUserID
 	}
-	v := &invoices.FetchPayload{}
+	var fromDate string
+	{
+		fromDate = invoicesFetchListFromDate
+	}
+	var toDate string
+	{
+		toDate = invoicesFetchListToDate
+	}
+	v := &invoices.FetchListPayload{}
 	v.UserID = userID
+	v.FromDate = fromDate
+	v.ToDate = toDate
 
 	return v, nil
 }

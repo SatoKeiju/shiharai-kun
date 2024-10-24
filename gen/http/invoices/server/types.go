@@ -11,19 +11,20 @@ import (
 	invoices "github.com/SatoKeiju/shiharai-kun/gen/invoices"
 )
 
-// FetchResponseBody is the type of the "invoices" service "fetch" endpoint
-// HTTP response body.
-type FetchResponseBody []*InvoiceResponse
+// FetchListResponseBody is the type of the "invoices" service "fetch list"
+// endpoint HTTP response body.
+type FetchListResponseBody []*InvoiceResponse
 
-// FetchBadRequestResponseBody is the type of the "invoices" service "fetch"
-// endpoint HTTP response body for the "bad_request" error.
-type FetchBadRequestResponseBody struct {
+// FetchListBadRequestResponseBody is the type of the "invoices" service "fetch
+// list" endpoint HTTP response body for the "bad_request" error.
+type FetchListBadRequestResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 }
 
-// FetchInternalServerErrorResponseBody is the type of the "invoices" service
-// "fetch" endpoint HTTP response body for the "internal_server_error" error.
-type FetchInternalServerErrorResponseBody struct {
+// FetchListInternalServerErrorResponseBody is the type of the "invoices"
+// service "fetch list" endpoint HTTP response body for the
+// "internal_server_error" error.
+type FetchListInternalServerErrorResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 }
 
@@ -49,9 +50,9 @@ type InvoiceResponse struct {
 	Status string `form:"status" json:"status" xml:"status"`
 }
 
-// NewFetchResponseBody builds the HTTP response body from the result of the
-// "fetch" endpoint of the "invoices" service.
-func NewFetchResponseBody(res []*invoices.Invoice) FetchResponseBody {
+// NewFetchListResponseBody builds the HTTP response body from the result of
+// the "fetch list" endpoint of the "invoices" service.
+func NewFetchListResponseBody(res []*invoices.Invoice) FetchListResponseBody {
 	body := make([]*InvoiceResponse, len(res))
 	for i, val := range res {
 		body[i] = marshalInvoicesInvoiceToInvoiceResponse(val)
@@ -59,28 +60,30 @@ func NewFetchResponseBody(res []*invoices.Invoice) FetchResponseBody {
 	return body
 }
 
-// NewFetchBadRequestResponseBody builds the HTTP response body from the result
-// of the "fetch" endpoint of the "invoices" service.
-func NewFetchBadRequestResponseBody(res *invoices.ErrBadRequest) *FetchBadRequestResponseBody {
-	body := &FetchBadRequestResponseBody{
+// NewFetchListBadRequestResponseBody builds the HTTP response body from the
+// result of the "fetch list" endpoint of the "invoices" service.
+func NewFetchListBadRequestResponseBody(res *invoices.ErrBadRequest) *FetchListBadRequestResponseBody {
+	body := &FetchListBadRequestResponseBody{
 		Message: res.Message,
 	}
 	return body
 }
 
-// NewFetchInternalServerErrorResponseBody builds the HTTP response body from
-// the result of the "fetch" endpoint of the "invoices" service.
-func NewFetchInternalServerErrorResponseBody(res *invoices.ErrInternalServerError) *FetchInternalServerErrorResponseBody {
-	body := &FetchInternalServerErrorResponseBody{
+// NewFetchListInternalServerErrorResponseBody builds the HTTP response body
+// from the result of the "fetch list" endpoint of the "invoices" service.
+func NewFetchListInternalServerErrorResponseBody(res *invoices.ErrInternalServerError) *FetchListInternalServerErrorResponseBody {
+	body := &FetchListInternalServerErrorResponseBody{
 		Message: res.Message,
 	}
 	return body
 }
 
-// NewFetchPayload builds a invoices service fetch endpoint payload.
-func NewFetchPayload(userID string) *invoices.FetchPayload {
-	v := &invoices.FetchPayload{}
+// NewFetchListPayload builds a invoices service fetch list endpoint payload.
+func NewFetchListPayload(userID string, fromDate string, toDate string) *invoices.FetchListPayload {
+	v := &invoices.FetchListPayload{}
 	v.UserID = userID
+	v.FromDate = fromDate
+	v.ToDate = toDate
 
 	return v
 }

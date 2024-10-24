@@ -13,8 +13,8 @@ import (
 
 // invoice service
 type Service interface {
-	// Fetch implements fetch.
-	Fetch(context.Context, *FetchPayload) (res []*Invoice, err error)
+	// FetchList implements fetch list.
+	FetchList(context.Context, *FetchListPayload) (res []*Invoice, err error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -31,7 +31,7 @@ const ServiceName = "invoices"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [1]string{"fetch"}
+var MethodNames = [1]string{"fetch list"}
 
 // 400 Bad Request
 type ErrBadRequest struct {
@@ -43,10 +43,15 @@ type ErrInternalServerError struct {
 	Message string
 }
 
-// FetchPayload is the payload type of the invoices service fetch method.
-type FetchPayload struct {
+// FetchListPayload is the payload type of the invoices service fetch list
+// method.
+type FetchListPayload struct {
 	// ユーザID
 	UserID string
+	// 指定する期間の開始日
+	FromDate string
+	// 指定する期間の最終日
+	ToDate string
 }
 
 type Invoice struct {
