@@ -15,26 +15,26 @@ import (
 
 // Endpoints wraps the "invoices" service endpoints.
 type Endpoints struct {
-	Fetch goa.Endpoint
+	FetchList goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "invoices" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Fetch: NewFetchEndpoint(s),
+		FetchList: NewFetchListEndpoint(s),
 	}
 }
 
 // Use applies the given middleware to all the "invoices" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
-	e.Fetch = m(e.Fetch)
+	e.FetchList = m(e.FetchList)
 }
 
-// NewFetchEndpoint returns an endpoint function that calls the method "fetch"
-// of service "invoices".
-func NewFetchEndpoint(s Service) goa.Endpoint {
+// NewFetchListEndpoint returns an endpoint function that calls the method
+// "fetch list" of service "invoices".
+func NewFetchListEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*FetchPayload)
-		return s.Fetch(ctx, p)
+		p := req.(*FetchListPayload)
+		return s.FetchList(ctx, p)
 	}
 }

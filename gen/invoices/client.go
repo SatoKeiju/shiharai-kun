@@ -15,24 +15,24 @@ import (
 
 // Client is the "invoices" service client.
 type Client struct {
-	FetchEndpoint goa.Endpoint
+	FetchListEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "invoices" service client given the endpoints.
-func NewClient(fetch goa.Endpoint) *Client {
+func NewClient(fetchList goa.Endpoint) *Client {
 	return &Client{
-		FetchEndpoint: fetch,
+		FetchListEndpoint: fetchList,
 	}
 }
 
-// Fetch calls the "fetch" endpoint of the "invoices" service.
-// Fetch may return the following errors:
+// FetchList calls the "fetch list" endpoint of the "invoices" service.
+// FetchList may return the following errors:
 //   - "bad_request" (type *ErrBadRequest)
 //   - "internal_server_error" (type *ErrInternalServerError)
 //   - error: internal error
-func (c *Client) Fetch(ctx context.Context, p *FetchPayload) (res []*Invoice, err error) {
+func (c *Client) FetchList(ctx context.Context, p *FetchListPayload) (res []*Invoice, err error) {
 	var ires any
-	ires, err = c.FetchEndpoint(ctx, p)
+	ires, err = c.FetchListEndpoint(ctx, p)
 	if err != nil {
 		return
 	}

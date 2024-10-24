@@ -7,7 +7,7 @@
 
 package server
 
-// FetchInvoicesPath returns the URL path to the invoices service fetch HTTP endpoint.
-func FetchInvoicesPath() string {
+// FetchListInvoicesPath returns the URL path to the invoices service fetch list HTTP endpoint.
+func FetchListInvoicesPath() string {
 	return "/api/invoices"
 }

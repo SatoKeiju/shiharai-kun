@@ -18,8 +18,8 @@ import (
 
 // Server lists the invoices service endpoint HTTP handlers.
 type Server struct {
-	Mounts []*MountPoint
-	Fetch  http.Handler
+	Mounts    []*MountPoint
+	FetchList http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -49,9 +49,9 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
-			{"Fetch", "GET", "/api/invoices"},
+			{"FetchList", "GET", "/api/invoices"},
 		},
-		Fetch: NewFetchHandler(e.Fetch, mux, decoder, encoder, errhandler, formatter),
+		FetchList: NewFetchListHandler(e.FetchList, mux, decoder, encoder, errhandler, formatter),
 	}
 }
 
@@ -60,7 +60,7 @@ func (s *Server) Service() string { return "invoices" }
 
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
-	s.Fetch = m(s.Fetch)
+	s.FetchList = m(s.FetchList)
 }
 
 // MethodNames returns the methods served.
@@ -68,7 +68,7 @@ func (s *Server) MethodNames() []string { return invoices.MethodNames[:] }
 
 // Mount configures the mux to serve the invoices endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
-	MountFetchHandler(mux, h.Fetch)
+	MountFetchListHandler(mux, h.FetchList)
 }
 
 // Mount configures the mux to serve the invoices endpoints.
@@ -76,9 +76,9 @@ func (s *Server) Mount(mux goahttp.Muxer) {
 	Mount(mux, s)
 }
 
-// MountFetchHandler configures the mux to serve the "invoices" service "fetch"
-// endpoint.
-func MountFetchHandler(mux goahttp.Muxer, h http.Handler) {
+// MountFetchListHandler configures the mux to serve the "invoices" service
+// "fetch list" endpoint.
+func MountFetchListHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := h.(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
@@ -88,9 +88,9 @@ func MountFetchHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("GET", "/api/invoices", f)
 }
 
-// NewFetchHandler creates a HTTP handler which loads the HTTP request and
-// calls the "invoices" service "fetch" endpoint.
-func NewFetchHandler(
+// NewFetchListHandler creates a HTTP handler which loads the HTTP request and
+// calls the "invoices" service "fetch list" endpoint.
+func NewFetchListHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -99,13 +99,13 @@ func NewFetchHandler(
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		decodeRequest  = DecodeFetchRequest(mux, decoder)
-		encodeResponse = EncodeFetchResponse(encoder)
-		encodeError    = EncodeFetchError(encoder, formatter)
+		decodeRequest  = DecodeFetchListRequest(mux, decoder)
+		encodeResponse = EncodeFetchListResponse(encoder)
+		encodeError    = EncodeFetchListError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "fetch")
+		ctx = context.WithValue(ctx, goa.MethodKey, "fetch list")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "invoices")
 		payload, err := decodeRequest(r)
 		if err != nil {

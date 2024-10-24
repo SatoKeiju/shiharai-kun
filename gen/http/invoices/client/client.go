@@ -17,8 +17,9 @@ import (
 
 // Client lists the invoices service endpoint HTTP clients.
 type Client struct {
-	// Fetch Doer is the HTTP client used to make requests to the fetch endpoint.
-	FetchDoer goahttp.Doer
+	// FetchList Doer is the HTTP client used to make requests to the fetch list
+	// endpoint.
+	FetchListDoer goahttp.Doer
 
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
@@ -40,7 +41,7 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		FetchDoer:           doer,
+		FetchListDoer:       doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -49,15 +50,15 @@ func NewClient(
 	}
 }
 
-// Fetch returns an endpoint that makes HTTP requests to the invoices service
-// fetch server.
-func (c *Client) Fetch() goa.Endpoint {
+// FetchList returns an endpoint that makes HTTP requests to the invoices
+// service fetch list server.
+func (c *Client) FetchList() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeFetchRequest(c.encoder)
-		decodeResponse = DecodeFetchResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeFetchListRequest(c.encoder)
+		decodeResponse = DecodeFetchListResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildFetchRequest(ctx, v)
+		req, err := c.BuildFetchListRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -65,9 +66,9 @@ func (c *Client) Fetch() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.FetchDoer.Do(req)
+		resp, err := c.FetchListDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("invoices", "fetch", err)
+			return nil, goahttp.ErrRequestError("invoices", "fetch list", err)
 		}
 		return decodeResponse(resp)
 	}
