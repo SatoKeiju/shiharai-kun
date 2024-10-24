@@ -1,0 +1,200 @@
+openapi: 3.0.3
+info:
+    title: shiharai kun service
+    description: shiharai kun API service
+    version: 0.0.1
+servers:
+    - url: http://localhost:8088
+paths:
+    /api/invoices:
+        get:
+            tags:
+                - invoices
+            summary: 指定期間内に支払いが発生する請求書データの一覧を取得
+            operationId: invoices#fetch
+            parameters:
+                - name: user-id
+                  in: query
+                  description: ユーザID
+                  allowEmptyValue: true
+                  required: true
+                  schema:
+                    type: string
+                    description: ユーザID
+                    example: Eum exercitationem dicta hic veniam deserunt.
+                  example: Quo quod.
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Invoice'
+                                example:
+                                    - billing_amount: 10440
+                                      commission: 400
+                                      commission_rate: 0.04
+                                      consumption_tax: 40
+                                      consumption_tax_rate: 0.1
+                                      issue_date: "2024-10-01"
+                                      payment_amount: 10000
+                                      payment_due_date: "2024-10-27"
+                                      status: 未処理
+                                    - billing_amount: 10440
+                                      commission: 400
+                                      commission_rate: 0.04
+                                      consumption_tax: 40
+                                      consumption_tax_rate: 0.1
+                                      issue_date: "2024-10-01"
+                                      payment_amount: 10000
+                                      payment_due_date: "2024-10-27"
+                                      status: 未処理
+                                    - billing_amount: 10440
+                                      commission: 400
+                                      commission_rate: 0.04
+                                      consumption_tax: 40
+                                      consumption_tax_rate: 0.1
+                                      issue_date: "2024-10-01"
+                                      payment_amount: 10000
+                                      payment_due_date: "2024-10-27"
+                                      status: 未処理
+                            example:
+                                - billing_amount: 10440
+                                  commission: 400
+                                  commission_rate: 0.04
+                                  consumption_tax: 40
+                                  consumption_tax_rate: 0.1
+                                  issue_date: "2024-10-01"
+                                  payment_amount: 10000
+                                  payment_due_date: "2024-10-27"
+                                  status: 未処理
+                                - billing_amount: 10440
+                                  commission: 400
+                                  commission_rate: 0.04
+                                  consumption_tax: 40
+                                  consumption_tax_rate: 0.1
+                                  issue_date: "2024-10-01"
+                                  payment_amount: 10000
+                                  payment_due_date: "2024-10-27"
+                                  status: 未処理
+                "400":
+                    description: 'bad_request: Bad Request response.'
+                    content:
+                        application/vnd.err.bad_request:
+                            schema:
+                                $ref: '#/components/schemas/ErrBadRequest'
+                            example:
+                                message: 不正なリクエスト
+                "500":
+                    description: 'internal_server_error: Internal Server Error response.'
+                    content:
+                        application/vnd.err.internal_server_error:
+                            schema:
+                                $ref: '#/components/schemas/ErrInternalServerError'
+                            example:
+                                message: サーバーエラー
+components:
+    schemas:
+        ErrBadRequest:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: 不正なリクエスト
+            description: 400 Bad Request
+            example:
+                message: 不正なリクエスト
+            required:
+                - message
+        ErrInternalServerError:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: サーバーエラー
+            description: 500 Internal Server Error
+            example:
+                message: サーバーエラー
+            required:
+                - message
+        Invoice:
+            type: object
+            properties:
+                billing_amount:
+                    type: integer
+                    description: 請求金額
+                    example: 10440
+                    format: int64
+                    minimum: 1
+                commission:
+                    type: integer
+                    description: 手数料
+                    example: 400
+                    format: int64
+                    minimum: 0
+                commission_rate:
+                    type: number
+                    description: 手数料率
+                    example: 0.04
+                    format: double
+                    minimum: 0
+                consumption_tax:
+                    type: integer
+                    description: 消費税
+                    example: 40
+                    format: int64
+                    minimum: 0
+                consumption_tax_rate:
+                    type: number
+                    description: 消費税率
+                    example: 0.1
+                    format: double
+                    minimum: 0
+                issue_date:
+                    type: string
+                    description: 発行日
+                    example: "2024-10-01"
+                payment_amount:
+                    type: integer
+                    description: 支払金額
+                    example: 10000
+                    format: int64
+                    minimum: 1
+                payment_due_date:
+                    type: string
+                    description: 支払期日
+                    example: "2024-10-27"
+                status:
+                    type: string
+                    description: ステータス
+                    example: 未処理
+                    enum:
+                        - 未処理
+                        - 処理中
+                        - 支払い済み
+                        - エラー
+            example:
+                billing_amount: 10440
+                commission: 400
+                commission_rate: 0.04
+                consumption_tax: 40
+                consumption_tax_rate: 0.1
+                issue_date: "2024-10-01"
+                payment_amount: 10000
+                payment_due_date: "2024-10-27"
+                status: 未処理
+            required:
+                - issue_date
+                - payment_amount
+                - commission
+                - commission_rate
+                - consumption_tax
+                - consumption_tax_rate
+                - billing_amount
+                - payment_due_date
+                - status
+tags:
+    - name: invoices
+      description: invoice service
