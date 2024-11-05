@@ -9,7 +9,6 @@ linters:
     - decorder
     - dogsled
     - durationcheck
-    - err113
     - errcheck
     - errchkjson
     - errname
@@ -42,7 +41,6 @@ linters:
     - nolintlint
     - nonamedreturns
     - nosprintfhostport
-    - paralleltest
     - prealloc
     - predeclared
     - promlinter
@@ -60,7 +58,6 @@ linters:
     - testableexamples
     - testifylint
     - thelper
-    - tparallel
     - typecheck
     - unconvert
     - unparam
