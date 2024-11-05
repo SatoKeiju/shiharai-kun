@@ -2,7 +2,10 @@ module github.com/SatoKeiju/shiharai-kun
 
 go 1.23.1
 
-require goa.design/goa/v3 v3.19.1
+require (
+	github.com/jmoiron/sqlx v1.4.0
+	goa.design/goa/v3 v3.19.1
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -13,7 +13,7 @@ import (
 
 // FetchListResponseBody is the type of the "invoices" service "fetch list"
 // endpoint HTTP response body.
-type FetchListResponseBody []*InvoiceResponse
+type FetchListResponseBody []*InvoiceGoResponse
 
 // FetchListBadRequestResponseBody is the type of the "invoices" service "fetch
 // list" endpoint HTTP response body for the "bad_request" error.
@@ -28,8 +28,8 @@ type FetchListInternalServerErrorResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 }
 
-// InvoiceResponse is used to define fields on response body types.
-type InvoiceResponse struct {
+// InvoiceGoResponse is used to define fields on response body types.
+type InvoiceGoResponse struct {
 	// 発行日
 	IssueDate string `form:"issue_date" json:"issue_date" xml:"issue_date"`
 	// 支払金額
@@ -52,10 +52,10 @@ type InvoiceResponse struct {
 
 // NewFetchListResponseBody builds the HTTP response body from the result of
 // the "fetch list" endpoint of the "invoices" service.
-func NewFetchListResponseBody(res []*invoices.Invoice) FetchListResponseBody {
-	body := make([]*InvoiceResponse, len(res))
+func NewFetchListResponseBody(res []*invoices.InvoiceGo) FetchListResponseBody {
+	body := make([]*InvoiceGoResponse, len(res))
 	for i, val := range res {
-		body[i] = marshalInvoicesInvoiceToInvoiceResponse(val)
+		body[i] = marshalInvoicesInvoiceGoToInvoiceGoResponse(val)
 	}
 	return body
 }

@@ -129,7 +129,7 @@ func ParseEndpoint(
 
 // invoicesUsage displays the usage of the invoices command and its subcommands.
 func invoicesUsage() {
-	fmt.Fprintf(os.Stderr, `invoice service
+	fmt.Fprintf(os.Stderr, `invoice.go service
 Usage:
     %[1]s [globalflags] invoices COMMAND [flags]
 

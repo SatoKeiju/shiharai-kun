@@ -3,7 +3,7 @@ package design
 import "goa.design/goa/v3/dsl"
 
 // invoice : 請求書
-var invoice = dsl.Type("invoice", func() {
+var invoice = dsl.Type("invoice.go", func() {
 	dsl.Attribute("issue_date", dsl.String, "発行日", func() {
 		dsl.Example("2024-10-01")
 	})
