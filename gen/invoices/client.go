@@ -30,11 +30,11 @@ func NewClient(fetchList goa.Endpoint) *Client {
 //   - "bad_request" (type *ErrBadRequest)
 //   - "internal_server_error" (type *ErrInternalServerError)
 //   - error: internal error
-func (c *Client) FetchList(ctx context.Context, p *FetchListPayload) (res []*Invoice, err error) {
+func (c *Client) FetchList(ctx context.Context, p *FetchListPayload) (res []*InvoiceGo, err error) {
 	var ires any
 	ires, err = c.FetchListEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.([]*Invoice), nil
+	return ires.([]*InvoiceGo), nil
 }

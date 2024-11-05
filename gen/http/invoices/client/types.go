@@ -14,7 +14,7 @@ import (
 
 // FetchListResponseBody is the type of the "invoices" service "fetch list"
 // endpoint HTTP response body.
-type FetchListResponseBody []*InvoiceResponse
+type FetchListResponseBody []*InvoiceGoResponse
 
 // FetchListBadRequestResponseBody is the type of the "invoices" service "fetch
 // list" endpoint HTTP response body for the "bad_request" error.
@@ -29,8 +29,8 @@ type FetchListInternalServerErrorResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 }
 
-// InvoiceResponse is used to define fields on response body types.
-type InvoiceResponse struct {
+// InvoiceGoResponse is used to define fields on response body types.
+type InvoiceGoResponse struct {
 	// 発行日
 	IssueDate *string `form:"issue_date,omitempty" json:"issue_date,omitempty" xml:"issue_date,omitempty"`
 	// 支払金額
@@ -51,12 +51,12 @@ type InvoiceResponse struct {
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 }
 
-// NewFetchListInvoiceOK builds a "invoices" service "fetch list" endpoint
+// NewFetchListInvoiceGoOK builds a "invoices" service "fetch list" endpoint
 // result from a HTTP "OK" response.
-func NewFetchListInvoiceOK(body []*InvoiceResponse) []*invoices.Invoice {
-	v := make([]*invoices.Invoice, len(body))
+func NewFetchListInvoiceGoOK(body []*InvoiceGoResponse) []*invoices.InvoiceGo {
+	v := make([]*invoices.InvoiceGo, len(body))
 	for i, val := range body {
-		v[i] = unmarshalInvoiceResponseToInvoicesInvoice(val)
+		v[i] = unmarshalInvoiceGoResponseToInvoicesInvoiceGo(val)
 	}
 
 	return v
@@ -100,8 +100,8 @@ func ValidateFetchListInternalServerErrorResponseBody(body *FetchListInternalSer
 	return
 }
 
-// ValidateInvoiceResponse runs the validations defined on invoiceResponse
-func ValidateInvoiceResponse(body *InvoiceResponse) (err error) {
+// ValidateInvoiceGoResponse runs the validations defined on invoice.goResponse
+func ValidateInvoiceGoResponse(body *InvoiceGoResponse) (err error) {
 	if body.IssueDate == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("issue_date", "body"))
 	}

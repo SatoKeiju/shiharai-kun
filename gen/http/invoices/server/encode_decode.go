@@ -21,7 +21,7 @@ import (
 // invoices fetch list endpoint.
 func EncodeFetchListResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res, _ := v.([]*invoices.Invoice)
+		res, _ := v.([]*invoices.InvoiceGo)
 		enc := encoder(ctx, w)
 		body := NewFetchListResponseBody(res)
 		w.WriteHeader(http.StatusOK)
@@ -105,10 +105,10 @@ func EncodeFetchListError(encoder func(context.Context, http.ResponseWriter) goa
 	}
 }
 
-// marshalInvoicesInvoiceToInvoiceResponse builds a value of type
-// *InvoiceResponse from a value of type *invoices.Invoice.
-func marshalInvoicesInvoiceToInvoiceResponse(v *invoices.Invoice) *InvoiceResponse {
-	res := &InvoiceResponse{
+// marshalInvoicesInvoiceGoToInvoiceGoResponse builds a value of type
+// *InvoiceGoResponse from a value of type *invoices.InvoiceGo.
+func marshalInvoicesInvoiceGoToInvoiceGoResponse(v *invoices.InvoiceGo) *InvoiceGoResponse {
+	res := &InvoiceGoResponse{
 		IssueDate:          v.IssueDate,
 		PaymentAmount:      v.PaymentAmount,
 		Commission:         v.Commission,

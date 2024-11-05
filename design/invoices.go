@@ -5,7 +5,7 @@ import (
 )
 
 var _ = dsl.Service("invoices", func() {
-	dsl.Description("invoice service")
+	dsl.Description("invoice.go service")
 
 	dsl.HTTP(func() {
 		dsl.Path("/invoices")

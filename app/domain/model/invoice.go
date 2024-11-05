@@ -1,8 +1,10 @@
-package domain
+package model
 
 // Invoice : 請求書ドメインモデル
 // TODO: プライベートフィールドにしてゲッター経由でのみ取得できるようにする
 type Invoice struct {
+	CompanyID          string
+	ClientID           string
 	IssueDate          string
 	PaymentAmount      int
 	Commission         int
@@ -17,6 +19,8 @@ type Invoice struct {
 // NewInvoiceModel : 請求書の値から請求書ドメインモデルを生成
 // TODO: バリデーションや値オブジェクトなどを追記
 func NewInvoiceModel(
+	companyID string,
+	clientID string,
 	issueDate string,
 	paymentAmount int,
 	commission int,
@@ -28,6 +32,8 @@ func NewInvoiceModel(
 	status string,
 ) Invoice {
 	return Invoice{
+		CompanyID:          companyID,
+		ClientID:           clientID,
 		IssueDate:          issueDate,
 		PaymentAmount:      paymentAmount,
 		Commission:         commission,

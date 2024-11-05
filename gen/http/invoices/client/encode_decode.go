@@ -84,7 +84,7 @@ func DecodeFetchListResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			}
 			for _, e := range body {
 				if e != nil {
-					if err2 := ValidateInvoiceResponse(e); err2 != nil {
+					if err2 := ValidateInvoiceGoResponse(e); err2 != nil {
 						err = goa.MergeErrors(err, err2)
 					}
 				}
@@ -92,7 +92,7 @@ func DecodeFetchListResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			if err != nil {
 				return nil, goahttp.ErrValidationError("invoices", "fetch list", err)
 			}
-			res := NewFetchListInvoiceOK(body)
+			res := NewFetchListInvoiceGoOK(body)
 			return res, nil
 		case http.StatusBadRequest:
 			var (
@@ -129,10 +129,10 @@ func DecodeFetchListResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
-// unmarshalInvoiceResponseToInvoicesInvoice builds a value of type
-// *invoices.Invoice from a value of type *InvoiceResponse.
-func unmarshalInvoiceResponseToInvoicesInvoice(v *InvoiceResponse) *invoices.Invoice {
-	res := &invoices.Invoice{
+// unmarshalInvoiceGoResponseToInvoicesInvoiceGo builds a value of type
+// *invoices.InvoiceGo from a value of type *InvoiceGoResponse.
+func unmarshalInvoiceGoResponseToInvoicesInvoiceGo(v *InvoiceGoResponse) *invoices.InvoiceGo {
+	res := &invoices.InvoiceGo{
 		IssueDate:          *v.IssueDate,
 		PaymentAmount:      *v.PaymentAmount,
 		Commission:         *v.Commission,
