@@ -1,4 +1,4 @@
-package model
+package user
 
 // User : ユーザードメインモデル
 type User struct {

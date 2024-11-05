@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/SatoKeiju/shiharai-kun/app/domain/model"
+	"github.com/SatoKeiju/shiharai-kun/app/domain/model/invoice"
 	"github.com/SatoKeiju/shiharai-kun/app/domain/repository"
 )
 
 // InvoiceUseCase : 請求書に関するユースケースが満たすべきユースケース
 type InvoiceUseCase interface {
-	FetchList(ctx context.Context, userID string, from string, to string) ([]model.Invoice, error)
+	FetchList(ctx context.Context, userID string, from string, to string) ([]invoice.Invoice, error)
 }
 
 type invoiceUseCase struct {
@@ -24,7 +24,7 @@ func NewInvoiceUseCase() InvoiceUseCase {
 }
 
 // FetchList : ユーザーが所属する企業に紐づく請求書を一覧で取得
-func (u invoiceUseCase) FetchList(ctx context.Context, userID string, from string, to string) ([]model.Invoice, error) {
+func (u invoiceUseCase) FetchList(ctx context.Context, userID string, from string, to string) ([]invoice.Invoice, error) {
 	user, err := u.User.FetchByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("UserRepository.FetchByID(userID: %s): %w", userID, err)
