@@ -53,6 +53,53 @@ paths:
                         $ref: '#/definitions/ErrInternalServerError'
             schemes:
                 - http
+        post:
+            tags:
+                - invoices
+            summary: 請求書データを作成
+            operationId: invoices#create
+            parameters:
+                - name: user_id
+                  in: query
+                  description: ユーザID
+                  required: true
+                  type: string
+                - name: CreateRequestBody
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/InvoicesCreateRequestBody'
+                    required:
+                        - client_id
+                        - issue_date
+                        - payment_amount
+                        - payment_due_date
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/Invoice'
+                        required:
+                            - client_id
+                            - issue_date
+                            - payment_amount
+                            - commission
+                            - commission_rate
+                            - consumption_tax
+                            - consumption_tax_rate
+                            - billing_amount
+                            - payment_due_date
+                            - status
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/ErrBadRequest'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/ErrInternalServerError'
+            schemes:
+                - http
 definitions:
     ErrBadRequest:
         title: 'Mediatype identifier: application/vnd.err.bad_request; view=default'
@@ -61,7 +108,7 @@ definitions:
             message:
                 type: string
                 example: 不正なリクエスト
-        description: fetch list_bad_request_response_body result type (default view)
+        description: create_bad_request_response_body result type (default view)
         example:
             message: 不正なリクエスト
         required:
@@ -73,7 +120,7 @@ definitions:
             message:
                 type: string
                 example: サーバーエラー
-        description: fetch list_internal_server_error_response_body result type (default view)
+        description: create_internal_server_error_response_body result type (default view)
         example:
             message: サーバーエラー
         required:
@@ -88,6 +135,10 @@ definitions:
                 example: 10440
                 format: int64
                 minimum: 1
+            client_id:
+                type: string
+                description: 取引先ID
+                example: Quod culpa ut accusantium nesciunt ut.
             commission:
                 type: integer
                 description: 手数料
@@ -137,6 +188,7 @@ definitions:
                     - エラー
         example:
             billing_amount: 10440
+            client_id: Et aliquam et a sit itaque.
             commission: 400
             commission_rate: 0.04
             consumption_tax: 40
@@ -146,6 +198,7 @@ definitions:
             payment_due_date: "2024-10-27"
             status: 未処理
         required:
+            - client_id
             - issue_date
             - payment_amount
             - commission
@@ -155,3 +208,35 @@ definitions:
             - billing_amount
             - payment_due_date
             - status
+    InvoicesCreateRequestBody:
+        title: InvoicesCreateRequestBody
+        type: object
+        properties:
+            client_id:
+                type: string
+                description: 取引先ID
+                example: Neque exercitationem.
+            issue_date:
+                type: string
+                description: 発行日
+                example: "2024-10-01"
+            payment_amount:
+                type: integer
+                description: 支払金額
+                example: 10000
+                format: int64
+                minimum: 1
+            payment_due_date:
+                type: string
+                description: 支払期日
+                example: "2024-10-27"
+        example:
+            client_id: Autem aperiam laboriosam et earum odio.
+            issue_date: "2024-10-01"
+            payment_amount: 10000
+            payment_due_date: "2024-10-27"
+        required:
+            - client_id
+            - issue_date
+            - payment_amount
+            - payment_due_date

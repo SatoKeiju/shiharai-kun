@@ -4,6 +4,7 @@ import "goa.design/goa/v3/dsl"
 
 // invoice : 請求書
 var invoice = dsl.Type("invoice", func() {
+	dsl.Attribute("client_id", dsl.String, "取引先ID")
 	dsl.Attribute("issue_date", dsl.String, "発行日", func() {
 		dsl.Example("2024-10-01")
 	})
@@ -39,5 +40,5 @@ var invoice = dsl.Type("invoice", func() {
 		dsl.Example("未処理")
 	})
 
-	dsl.Required("issue_date", "payment_amount", "commission", "commission_rate", "consumption_tax", "consumption_tax_rate", "billing_amount", "payment_due_date", "status")
+	dsl.Required("client_id", "issue_date", "payment_amount", "commission", "commission_rate", "consumption_tax", "consumption_tax_rate", "billing_amount", "payment_due_date", "status")
 })

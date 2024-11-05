@@ -22,13 +22,18 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `invoices fetch-list
+	return `invoices (create|fetch-list)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` invoices fetch-list --user-id "Qui itaque molestiae doloribus saepe expedita dolorum." --from-date "2024-10-01" --to-date "2024-10-25"` + "\n" +
+	return os.Args[0] + ` invoices create --body '{
+      "client_id": "Qui omnis eos mollitia rerum vel consequatur.",
+      "issue_date": "2024-10-01",
+      "payment_amount": 10000,
+      "payment_due_date": "2024-10-27"
+   }' --user-id "Nobis est corrupti laudantium eum non impedit."` + "\n" +
 		""
 }
 
@@ -44,12 +49,17 @@ func ParseEndpoint(
 	var (
 		invoicesFlags = flag.NewFlagSet("invoices", flag.ContinueOnError)
 
+		invoicesCreateFlags      = flag.NewFlagSet("create", flag.ExitOnError)
+		invoicesCreateBodyFlag   = invoicesCreateFlags.String("body", "REQUIRED", "")
+		invoicesCreateUserIDFlag = invoicesCreateFlags.String("user-id", "REQUIRED", "")
+
 		invoicesFetchListFlags        = flag.NewFlagSet("fetch-list", flag.ExitOnError)
 		invoicesFetchListUserIDFlag   = invoicesFetchListFlags.String("user-id", "REQUIRED", "")
 		invoicesFetchListFromDateFlag = invoicesFetchListFlags.String("from-date", "REQUIRED", "")
 		invoicesFetchListToDateFlag   = invoicesFetchListFlags.String("to-date", "REQUIRED", "")
 	)
 	invoicesFlags.Usage = invoicesUsage
+	invoicesCreateFlags.Usage = invoicesCreateUsage
 	invoicesFetchListFlags.Usage = invoicesFetchListUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
@@ -86,6 +96,9 @@ func ParseEndpoint(
 		switch svcn {
 		case "invoices":
 			switch epn {
+			case "create":
+				epf = invoicesCreateFlags
+
 			case "fetch-list":
 				epf = invoicesFetchListFlags
 
@@ -114,6 +127,9 @@ func ParseEndpoint(
 		case "invoices":
 			c := invoicesc.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
+			case "create":
+				endpoint = c.Create()
+				data, err = invoicesc.BuildCreatePayload(*invoicesCreateBodyFlag, *invoicesCreateUserIDFlag)
 			case "fetch-list":
 				endpoint = c.FetchList()
 				data, err = invoicesc.BuildFetchListPayload(*invoicesFetchListUserIDFlag, *invoicesFetchListFromDateFlag, *invoicesFetchListToDateFlag)
@@ -134,12 +150,30 @@ Usage:
     %[1]s [globalflags] invoices COMMAND [flags]
 
 COMMAND:
+    create: Create implements create.
     fetch-list: FetchList implements fetch list.
 
 Additional help:
     %[1]s invoices COMMAND --help
 `, os.Args[0])
 }
+func invoicesCreateUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] invoices create -body JSON -user-id STRING
+
+Create implements create.
+    -body JSON: 
+    -user-id STRING: 
+
+Example:
+    %[1]s invoices create --body '{
+      "client_id": "Qui omnis eos mollitia rerum vel consequatur.",
+      "issue_date": "2024-10-01",
+      "payment_amount": 10000,
+      "payment_due_date": "2024-10-27"
+   }' --user-id "Nobis est corrupti laudantium eum non impedit."
+`, os.Args[0])
+}
+
 func invoicesFetchListUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] invoices fetch-list -user-id STRING -from-date STRING -to-date STRING
 
@@ -149,6 +183,6 @@ FetchList implements fetch list.
     -to-date STRING: 
 
 Example:
-    %[1]s invoices fetch-list --user-id "Qui itaque molestiae doloribus saepe expedita dolorum." --from-date "2024-10-01" --to-date "2024-10-25"
+    %[1]s invoices fetch-list --user-id "Eligendi tempore doloremque maiores reiciendis esse quia." --from-date "2024-10-01" --to-date "2024-10-25"
 `, os.Args[0])
 }

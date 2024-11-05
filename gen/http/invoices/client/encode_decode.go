@@ -19,6 +19,112 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// BuildCreateRequest instantiates a HTTP request object with method and path
+// set to call the "invoices" service "create" endpoint
+func (c *Client) BuildCreateRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreateInvoicesPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("invoices", "create", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeCreateRequest returns an encoder for requests sent to the invoices
+// create server.
+func EncodeCreateRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*invoices.CreatePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("invoices", "create", "*invoices.CreatePayload", v)
+		}
+		values := req.URL.Query()
+		values.Add("user_id", p.UserID)
+		req.URL.RawQuery = values.Encode()
+		body := NewCreateRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("invoices", "create", err)
+		}
+		return nil
+	}
+}
+
+// DecodeCreateResponse returns a decoder for responses returned by the
+// invoices create endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeCreateResponse may return the following errors:
+//   - "bad_request" (type *invoices.ErrBadRequest): http.StatusBadRequest
+//   - "internal_server_error" (type *invoices.ErrInternalServerError): http.StatusInternalServerError
+//   - error: internal error
+func DecodeCreateResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusCreated:
+			var (
+				body CreateResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("invoices", "create", err)
+			}
+			err = ValidateCreateResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("invoices", "create", err)
+			}
+			res := NewCreateInvoiceCreated(&body)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body CreateBadRequestResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("invoices", "create", err)
+			}
+			err = ValidateCreateBadRequestResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("invoices", "create", err)
+			}
+			return nil, NewCreateBadRequest(&body)
+		case http.StatusInternalServerError:
+			var (
+				body CreateInternalServerErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("invoices", "create", err)
+			}
+			err = ValidateCreateInternalServerErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("invoices", "create", err)
+			}
+			return nil, NewCreateInternalServerError(&body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("invoices", "create", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildFetchListRequest instantiates a HTTP request object with method and
 // path set to call the "invoices" service "fetch list" endpoint
 func (c *Client) BuildFetchListRequest(ctx context.Context, v any) (*http.Request, error) {
@@ -133,6 +239,7 @@ func DecodeFetchListResponse(decoder func(*http.Response) goahttp.Decoder, resto
 // *invoices.Invoice from a value of type *InvoiceResponse.
 func unmarshalInvoiceResponseToInvoicesInvoice(v *InvoiceResponse) *invoices.Invoice {
 	res := &invoices.Invoice{
+		ClientID:           *v.ClientID,
 		IssueDate:          *v.IssueDate,
 		PaymentAmount:      *v.PaymentAmount,
 		Commission:         *v.Commission,

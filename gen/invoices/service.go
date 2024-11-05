@@ -13,6 +13,8 @@ import (
 
 // invoice.go service
 type Service interface {
+	// Create implements create.
+	Create(context.Context, *CreatePayload) (res *Invoice, err error)
 	// FetchList implements fetch list.
 	FetchList(context.Context, *FetchListPayload) (res []*Invoice, err error)
 }
@@ -31,7 +33,21 @@ const ServiceName = "invoices"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [1]string{"fetch list"}
+var MethodNames = [2]string{"create", "fetch list"}
+
+// CreatePayload is the payload type of the invoices service create method.
+type CreatePayload struct {
+	// ユーザID
+	UserID string
+	// 取引先ID
+	ClientID string
+	// 発行日
+	IssueDate string
+	// 支払金額
+	PaymentAmount int
+	// 支払期日
+	PaymentDueDate string
+}
 
 // 400 Bad Request
 type ErrBadRequest struct {
@@ -54,7 +70,10 @@ type FetchListPayload struct {
 	ToDate string
 }
 
+// Invoice is the result type of the invoices service create method.
 type Invoice struct {
+	// 取引先ID
+	ClientID string
 	// 発行日
 	IssueDate string
 	// 支払金額

@@ -20,6 +20,11 @@ func NewInvoice(rdb *sqlx.DB) repository.Invoice {
 	return invoice{rdb: rdb}
 }
 
+func (i invoice) Create(_ context.Context, model model.Invoice) (model.Invoice, error) {
+	// TODO: 実装
+	return model, nil
+}
+
 // FetchListByCompanyID : 指定した企業IDに紐づく期間内の請求書を一覧で取得
 func (i invoice) FetchListByCompanyID(ctx context.Context, companyID string, from string, to string) ([]model.Invoice, error) {
 	q := "SELECT * FROM invoices WHERE company_id = ? AND payment_due_date BETWEEN ? AND ?"
