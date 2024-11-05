@@ -38,5 +38,6 @@ func (s *invoicesService) FetchList(ctx context.Context, p *gen.FetchListPayload
 			Status:             invoice.Status,
 		}
 	}
+
 	return res, nil
 }

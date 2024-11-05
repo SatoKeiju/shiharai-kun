@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/SatoKeiju/shiharai-kun/app/domain/model/user"
 )
 
