@@ -1,9 +1,14 @@
 package invoice
 
-import "github.com/SatoKeiju/shiharai-kun/app/domain/model/invoice"
+import (
+	"github.com/google/uuid"
+
+	"github.com/SatoKeiju/shiharai-kun/app/domain/model/invoice"
+)
 
 // DTO : 請求書情報DTO
 type DTO struct {
+	ID                 string  `db:"id"`
 	CompanyID          string  `db:"company_id"`
 	ClientID           string  `db:"client_id"`
 	IssueDate          string  `db:"issue_date"`
@@ -18,19 +23,32 @@ type DTO struct {
 }
 
 // ModelFromDTO : 請求書情報DTOから請求書ドメインモデルを生成
-// TODO: バリデーションなども含めたモデル生成関数を払い出してそれ経由で生成
 func ModelFromDTO(d DTO) invoice.Invoice {
-	return invoice.Invoice{
-		CompanyID:          d.CompanyID,
-		ClientID:           d.ClientID,
-		IssueDate:          d.IssueDate,
-		PaymentAmount:      d.PaymentAmount,
-		Commission:         d.Commission,
-		CommissionRate:     d.CommissionRate,
-		ConsumptionTax:     d.ConsumptionTax,
-		ConsumptionTaxRate: d.ConsumptionTaxRate,
-		BillingAmount:      d.BillingAmount,
-		PaymentDueDate:     d.PaymentDueDate,
-		Status:             d.Status,
+	i, err := invoice.New(d.CompanyID, d.ClientID, d.IssueDate, d.PaymentAmount, d.PaymentDueDate)
+	if err != nil {
+		//nolint:exhaustruct
+		return invoice.Invoice{}
+	}
+
+	return i
+}
+
+func DTOFromModel(m invoice.Invoice) DTO {
+	// TODO: IDの生成ロジックを置き場所も含めて検討
+	newUUID, _ := uuid.NewRandom()
+
+	return DTO{
+		ID:                 newUUID.String(),
+		CompanyID:          m.CompanyID,
+		ClientID:           m.ClientID,
+		IssueDate:          m.IssueDate,
+		PaymentAmount:      m.PaymentAmount,
+		Commission:         m.Commission,
+		CommissionRate:     m.CommissionRate,
+		ConsumptionTax:     m.ConsumptionTax,
+		ConsumptionTaxRate: m.ConsumptionTaxRate,
+		BillingAmount:      m.BillingAmount,
+		PaymentDueDate:     m.PaymentDueDate,
+		Status:             m.Status,
 	}
 }

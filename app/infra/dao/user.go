@@ -22,6 +22,7 @@ func NewUser(rdb *sqlx.DB) repository.User {
 
 // FetchByID : ユーザーIDからユーザー情報を取得
 func (u user) FetchByID(ctx context.Context, userID string) (model.User, error) {
+	// TODO: "*"をやめて取得するカラムを全て書く
 	q := "SELECT * FROM users WHERE id = ?"
 	var d dto.DTO
 	if err := u.rdb.SelectContext(ctx, d, q, userID); err != nil {

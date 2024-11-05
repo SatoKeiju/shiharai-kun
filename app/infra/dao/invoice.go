@@ -20,13 +20,21 @@ func NewInvoice(rdb *sqlx.DB) repository.Invoice {
 	return invoice{rdb: rdb}
 }
 
-func (i invoice) Create(_ context.Context, model model.Invoice) (model.Invoice, error) {
-	// TODO: 実装
-	return model, nil
+// Create : 請求書データを保存
+func (i invoice) Create(ctx context.Context, m model.Invoice) (model.Invoice, error) {
+	q := "INSERT INTO invoices (id, company_id, client_id, issue_date, payment_amount, commission, commission_rate, consumption_tax, consumption_tax_rate, billing_amount, payment_due_date, status)"
+
+	d := dto.DTOFromModel(m)
+	if _, err := i.rdb.ExecContext(ctx, q, d.ID, d.CompanyID, d.ClientID, d.IssueDate, d.PaymentAmount, d.Commission, d.CommissionRate, d.ConsumptionTax, d.ConsumptionTaxRate, d.BillingAmount, d.PaymentDueDate, d.Status); err != nil {
+		return model.Invoice{}, fmt.Errorf("rdb.ExecContext(model: %+v): %w", m, err)
+	}
+
+	return m, nil
 }
 
 // FetchListByCompanyID : 指定した企業IDに紐づく期間内の請求書を一覧で取得
 func (i invoice) FetchListByCompanyID(ctx context.Context, companyID string, from string, to string) ([]model.Invoice, error) {
+	// TODO: "*"をやめて取得するカラムを全て書く
 	q := "SELECT * FROM invoices WHERE company_id = ? AND payment_due_date BETWEEN ? AND ?"
 	var dList []dto.DTO
 	if err := i.rdb.SelectContext(ctx, dList, q, companyID, from, to); err != nil {
