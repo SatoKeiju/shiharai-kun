@@ -16,32 +16,20 @@ type Invoice struct {
 	Status             string
 }
 
-// NewInvoiceModel : 請求書の値から請求書ドメインモデルを生成
-// TODO: バリデーションや値オブジェクトなどを追記
-func NewInvoiceModel(
-	companyID string,
-	clientID string,
-	issueDate string,
-	paymentAmount int,
-	commission int,
-	commissionRate float64,
-	consumptionTax int,
-	consumptionTaxRate float64,
-	billingAmount int,
-	paymentDueDate string,
-	status string,
-) Invoice {
+// New : 請求書の値から請求書ドメインモデルを生成
+func New(companyID string, clientID string, issueDate string, paymentAmount int, paymentDueDate string) (Invoice, error) {
+	// TODO: バリデーションや値オブジェクトなどを追記
 	return Invoice{
 		CompanyID:          companyID,
 		ClientID:           clientID,
 		IssueDate:          issueDate,
 		PaymentAmount:      paymentAmount,
-		Commission:         commission,
-		CommissionRate:     commissionRate,
-		ConsumptionTax:     consumptionTax,
-		ConsumptionTaxRate: consumptionTaxRate,
-		BillingAmount:      billingAmount,
+		Commission:         0,
+		CommissionRate:     0,
+		ConsumptionTax:     0,
+		ConsumptionTaxRate: 0,
+		BillingAmount:      0,
 		PaymentDueDate:     paymentDueDate,
-		Status:             status,
-	}
+		Status:             "",
+	}, nil
 }

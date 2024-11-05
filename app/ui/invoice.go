@@ -17,6 +17,27 @@ func NewInvoiceService(u usecase.InvoiceUseCase) gen.Service {
 	return &invoicesService{u: u}
 }
 
+// Create : 請求書データを作成
+func (s *invoicesService) Create(ctx context.Context, p *gen.CreatePayload) (*gen.Invoice, error) {
+	i, err := s.u.Create(ctx, p.UserID, p.ClientID, p.IssueDate, p.PaymentAmount, p.PaymentDueDate)
+	if err != nil {
+		return nil, fmt.Errorf("InvoiceUseCase.Create(userID: %s, clientID: %s, issueDate: %s, paymentAmount: %d, paymentDueDate: %s): %w", p.UserID, p.ClientID, p.IssueDate, p.PaymentAmount, p.PaymentDueDate, err)
+	}
+
+	return &gen.Invoice{
+		ClientID:           i.ClientID,
+		IssueDate:          i.IssueDate,
+		PaymentAmount:      i.PaymentAmount,
+		Commission:         i.Commission,
+		CommissionRate:     i.CommissionRate,
+		ConsumptionTax:     i.ConsumptionTax,
+		ConsumptionTaxRate: i.ConsumptionTaxRate,
+		BillingAmount:      i.BillingAmount,
+		PaymentDueDate:     i.PaymentDueDate,
+		Status:             i.Status,
+	}, nil
+}
+
 // FetchList : 指定期間内に支払いが発生する請求書データの一覧を取得
 func (s *invoicesService) FetchList(ctx context.Context, p *gen.FetchListPayload) ([]*gen.Invoice, error) {
 	list, err := s.u.FetchList(ctx, p.UserID, p.FromDate, p.ToDate)
@@ -27,6 +48,7 @@ func (s *invoicesService) FetchList(ctx context.Context, p *gen.FetchListPayload
 	res := make([]*gen.Invoice, len(list))
 	for i, invoice := range list {
 		res[i] = &gen.Invoice{
+			ClientID:           invoice.ClientID,
 			IssueDate:          invoice.IssueDate,
 			PaymentAmount:      invoice.PaymentAmount,
 			Commission:         invoice.Commission,

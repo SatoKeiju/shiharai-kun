@@ -8,8 +8,44 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
+
 	invoices "github.com/SatoKeiju/shiharai-kun/gen/invoices"
+	goa "goa.design/goa/v3/pkg"
 )
+
+// BuildCreatePayload builds the payload for the invoices create endpoint from
+// CLI flags.
+func BuildCreatePayload(invoicesCreateBody string, invoicesCreateUserID string) (*invoices.CreatePayload, error) {
+	var err error
+	var body CreateRequestBody
+	{
+		err = json.Unmarshal([]byte(invoicesCreateBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"client_id\": \"Qui omnis eos mollitia rerum vel consequatur.\",\n      \"issue_date\": \"2024-10-01\",\n      \"payment_amount\": 10000,\n      \"payment_due_date\": \"2024-10-27\"\n   }'")
+		}
+		if body.PaymentAmount < 1 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.payment_amount", body.PaymentAmount, 1, true))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	var userID string
+	{
+		userID = invoicesCreateUserID
+	}
+	v := &invoices.CreatePayload{
+		ClientID:       body.ClientID,
+		IssueDate:      body.IssueDate,
+		PaymentAmount:  body.PaymentAmount,
+		PaymentDueDate: body.PaymentDueDate,
+	}
+	v.UserID = userID
+
+	return v, nil
+}
 
 // BuildFetchListPayload builds the payload for the invoices fetch list
 // endpoint from CLI flags.

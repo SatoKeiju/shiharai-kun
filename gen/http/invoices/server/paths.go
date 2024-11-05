@@ -7,6 +7,11 @@
 
 package server
 
+// CreateInvoicesPath returns the URL path to the invoices service create HTTP endpoint.
+func CreateInvoicesPath() string {
+	return "/api/invoices"
+}
+
 // FetchListInvoicesPath returns the URL path to the invoices service fetch list HTTP endpoint.
 func FetchListInvoicesPath() string {
 	return "/api/invoices"

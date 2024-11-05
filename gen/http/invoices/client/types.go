@@ -12,25 +12,24 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// FetchListResponseBody is the type of the "invoices" service "fetch list"
-// endpoint HTTP response body.
-type FetchListResponseBody []*InvoiceResponse
-
-// FetchListBadRequestResponseBody is the type of the "invoices" service "fetch
-// list" endpoint HTTP response body for the "bad_request" error.
-type FetchListBadRequestResponseBody struct {
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+// CreateRequestBody is the type of the "invoices" service "create" endpoint
+// HTTP request body.
+type CreateRequestBody struct {
+	// 取引先ID
+	ClientID string `form:"client_id" json:"client_id" xml:"client_id"`
+	// 発行日
+	IssueDate string `form:"issue_date" json:"issue_date" xml:"issue_date"`
+	// 支払金額
+	PaymentAmount int `form:"payment_amount" json:"payment_amount" xml:"payment_amount"`
+	// 支払期日
+	PaymentDueDate string `form:"payment_due_date" json:"payment_due_date" xml:"payment_due_date"`
 }
 
-// FetchListInternalServerErrorResponseBody is the type of the "invoices"
-// service "fetch list" endpoint HTTP response body for the
-// "internal_server_error" error.
-type FetchListInternalServerErrorResponseBody struct {
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-}
-
-// InvoiceResponse is used to define fields on response body types.
-type InvoiceResponse struct {
+// CreateResponseBody is the type of the "invoices" service "create" endpoint
+// HTTP response body.
+type CreateResponseBody struct {
+	// 取引先ID
+	ClientID *string `form:"client_id,omitempty" json:"client_id,omitempty" xml:"client_id,omitempty"`
 	// 発行日
 	IssueDate *string `form:"issue_date,omitempty" json:"issue_date,omitempty" xml:"issue_date,omitempty"`
 	// 支払金額
@@ -49,6 +48,110 @@ type InvoiceResponse struct {
 	PaymentDueDate *string `form:"payment_due_date,omitempty" json:"payment_due_date,omitempty" xml:"payment_due_date,omitempty"`
 	// ステータス
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+}
+
+// FetchListResponseBody is the type of the "invoices" service "fetch list"
+// endpoint HTTP response body.
+type FetchListResponseBody []*InvoiceResponse
+
+// CreateBadRequestResponseBody is the type of the "invoices" service "create"
+// endpoint HTTP response body for the "bad_request" error.
+type CreateBadRequestResponseBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+}
+
+// CreateInternalServerErrorResponseBody is the type of the "invoices" service
+// "create" endpoint HTTP response body for the "internal_server_error" error.
+type CreateInternalServerErrorResponseBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+}
+
+// FetchListBadRequestResponseBody is the type of the "invoices" service "fetch
+// list" endpoint HTTP response body for the "bad_request" error.
+type FetchListBadRequestResponseBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+}
+
+// FetchListInternalServerErrorResponseBody is the type of the "invoices"
+// service "fetch list" endpoint HTTP response body for the
+// "internal_server_error" error.
+type FetchListInternalServerErrorResponseBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+}
+
+// InvoiceResponse is used to define fields on response body types.
+type InvoiceResponse struct {
+	// 取引先ID
+	ClientID *string `form:"client_id,omitempty" json:"client_id,omitempty" xml:"client_id,omitempty"`
+	// 発行日
+	IssueDate *string `form:"issue_date,omitempty" json:"issue_date,omitempty" xml:"issue_date,omitempty"`
+	// 支払金額
+	PaymentAmount *int `form:"payment_amount,omitempty" json:"payment_amount,omitempty" xml:"payment_amount,omitempty"`
+	// 手数料
+	Commission *int `form:"commission,omitempty" json:"commission,omitempty" xml:"commission,omitempty"`
+	// 手数料率
+	CommissionRate *float64 `form:"commission_rate,omitempty" json:"commission_rate,omitempty" xml:"commission_rate,omitempty"`
+	// 消費税
+	ConsumptionTax *int `form:"consumption_tax,omitempty" json:"consumption_tax,omitempty" xml:"consumption_tax,omitempty"`
+	// 消費税率
+	ConsumptionTaxRate *float64 `form:"consumption_tax_rate,omitempty" json:"consumption_tax_rate,omitempty" xml:"consumption_tax_rate,omitempty"`
+	// 請求金額
+	BillingAmount *int `form:"billing_amount,omitempty" json:"billing_amount,omitempty" xml:"billing_amount,omitempty"`
+	// 支払期日
+	PaymentDueDate *string `form:"payment_due_date,omitempty" json:"payment_due_date,omitempty" xml:"payment_due_date,omitempty"`
+	// ステータス
+	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+}
+
+// NewCreateRequestBody builds the HTTP request body from the payload of the
+// "create" endpoint of the "invoices" service.
+func NewCreateRequestBody(p *invoices.CreatePayload) *CreateRequestBody {
+	body := &CreateRequestBody{
+		ClientID:       p.ClientID,
+		IssueDate:      p.IssueDate,
+		PaymentAmount:  p.PaymentAmount,
+		PaymentDueDate: p.PaymentDueDate,
+	}
+	return body
+}
+
+// NewCreateInvoiceCreated builds a "invoices" service "create" endpoint result
+// from a HTTP "Created" response.
+func NewCreateInvoiceCreated(body *CreateResponseBody) *invoices.Invoice {
+	v := &invoices.Invoice{
+		ClientID:           *body.ClientID,
+		IssueDate:          *body.IssueDate,
+		PaymentAmount:      *body.PaymentAmount,
+		Commission:         *body.Commission,
+		CommissionRate:     *body.CommissionRate,
+		ConsumptionTax:     *body.ConsumptionTax,
+		ConsumptionTaxRate: *body.ConsumptionTaxRate,
+		BillingAmount:      *body.BillingAmount,
+		PaymentDueDate:     *body.PaymentDueDate,
+		Status:             *body.Status,
+	}
+
+	return v
+}
+
+// NewCreateBadRequest builds a invoices service create endpoint bad_request
+// error.
+func NewCreateBadRequest(body *CreateBadRequestResponseBody) *invoices.ErrBadRequest {
+	v := &invoices.ErrBadRequest{
+		Message: *body.Message,
+	}
+
+	return v
+}
+
+// NewCreateInternalServerError builds a invoices service create endpoint
+// internal_server_error error.
+func NewCreateInternalServerError(body *CreateInternalServerErrorResponseBody) *invoices.ErrInternalServerError {
+	v := &invoices.ErrInternalServerError{
+		Message: *body.Message,
+	}
+
+	return v
 }
 
 // NewFetchListInvoiceOK builds a "invoices" service "fetch list" endpoint
@@ -82,6 +185,94 @@ func NewFetchListInternalServerError(body *FetchListInternalServerErrorResponseB
 	return v
 }
 
+// ValidateCreateResponseBody runs the validations defined on CreateResponseBody
+func ValidateCreateResponseBody(body *CreateResponseBody) (err error) {
+	if body.ClientID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("client_id", "body"))
+	}
+	if body.IssueDate == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("issue_date", "body"))
+	}
+	if body.PaymentAmount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("payment_amount", "body"))
+	}
+	if body.Commission == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("commission", "body"))
+	}
+	if body.CommissionRate == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("commission_rate", "body"))
+	}
+	if body.ConsumptionTax == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("consumption_tax", "body"))
+	}
+	if body.ConsumptionTaxRate == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("consumption_tax_rate", "body"))
+	}
+	if body.BillingAmount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("billing_amount", "body"))
+	}
+	if body.PaymentDueDate == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("payment_due_date", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.PaymentAmount != nil {
+		if *body.PaymentAmount < 1 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.payment_amount", *body.PaymentAmount, 1, true))
+		}
+	}
+	if body.Commission != nil {
+		if *body.Commission < 0 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.commission", *body.Commission, 0, true))
+		}
+	}
+	if body.CommissionRate != nil {
+		if *body.CommissionRate < 0 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.commission_rate", *body.CommissionRate, 0, true))
+		}
+	}
+	if body.ConsumptionTax != nil {
+		if *body.ConsumptionTax < 0 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.consumption_tax", *body.ConsumptionTax, 0, true))
+		}
+	}
+	if body.ConsumptionTaxRate != nil {
+		if *body.ConsumptionTaxRate < 0 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.consumption_tax_rate", *body.ConsumptionTaxRate, 0, true))
+		}
+	}
+	if body.BillingAmount != nil {
+		if *body.BillingAmount < 1 {
+			err = goa.MergeErrors(err, goa.InvalidRangeError("body.billing_amount", *body.BillingAmount, 1, true))
+		}
+	}
+	if body.Status != nil {
+		if !(*body.Status == "未処理" || *body.Status == "処理中" || *body.Status == "支払い済み" || *body.Status == "エラー") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"未処理", "処理中", "支払い済み", "エラー"}))
+		}
+	}
+	return
+}
+
+// ValidateCreateBadRequestResponseBody runs the validations defined on
+// create_bad_request_response_body
+func ValidateCreateBadRequestResponseBody(body *CreateBadRequestResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	return
+}
+
+// ValidateCreateInternalServerErrorResponseBody runs the validations defined
+// on create_internal_server_error_response_body
+func ValidateCreateInternalServerErrorResponseBody(body *CreateInternalServerErrorResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	return
+}
+
 // ValidateFetchListBadRequestResponseBody runs the validations defined on
 // fetch list_bad_request_response_body
 func ValidateFetchListBadRequestResponseBody(body *FetchListBadRequestResponseBody) (err error) {
@@ -102,6 +293,9 @@ func ValidateFetchListInternalServerErrorResponseBody(body *FetchListInternalSer
 
 // ValidateInvoiceResponse runs the validations defined on invoiceResponse
 func ValidateInvoiceResponse(body *InvoiceResponse) (err error) {
+	if body.ClientID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("client_id", "body"))
+	}
 	if body.IssueDate == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("issue_date", "body"))
 	}

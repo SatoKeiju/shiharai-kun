@@ -17,6 +17,9 @@ import (
 
 // Client lists the invoices service endpoint HTTP clients.
 type Client struct {
+	// Create Doer is the HTTP client used to make requests to the create endpoint.
+	CreateDoer goahttp.Doer
+
 	// FetchList Doer is the HTTP client used to make requests to the fetch list
 	// endpoint.
 	FetchListDoer goahttp.Doer
@@ -41,12 +44,37 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
+		CreateDoer:          doer,
 		FetchListDoer:       doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
 		decoder:             dec,
 		encoder:             enc,
+	}
+}
+
+// Create returns an endpoint that makes HTTP requests to the invoices service
+// create server.
+func (c *Client) Create() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeCreateRequest(c.encoder)
+		decodeResponse = DecodeCreateResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildCreateRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.CreateDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("invoices", "create", err)
+		}
+		return decodeResponse(resp)
 	}
 }
 

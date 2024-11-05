@@ -10,12 +10,109 @@ package server
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 
 	invoices "github.com/SatoKeiju/shiharai-kun/gen/invoices"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
+
+// EncodeCreateResponse returns an encoder for responses returned by the
+// invoices create endpoint.
+func EncodeCreateResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.(*invoices.Invoice)
+		enc := encoder(ctx, w)
+		body := NewCreateResponseBody(res)
+		w.WriteHeader(http.StatusCreated)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeCreateRequest returns a decoder for requests sent to the invoices
+// create endpoint.
+func DecodeCreateRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+	return func(r *http.Request) (any, error) {
+		var (
+			body CreateRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			var gerr *goa.ServiceError
+			if errors.As(err, &gerr) {
+				return nil, gerr
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateCreateRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+
+		var (
+			userID string
+		)
+		userID = r.URL.Query().Get("user_id")
+		if userID == "" {
+			err = goa.MergeErrors(err, goa.MissingFieldError("user_id", "query string"))
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewCreatePayload(&body, userID)
+
+		return payload, nil
+	}
+}
+
+// EncodeCreateError returns an encoder for errors returned by the create
+// invoices endpoint.
+func EncodeCreateError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "bad_request":
+			var res *invoices.ErrBadRequest
+			errors.As(v, &res)
+			ctx = context.WithValue(ctx, goahttp.ContentTypeKey, "application/vnd.err.bad_request")
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreateBadRequestResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "internal_server_error":
+			var res *invoices.ErrInternalServerError
+			errors.As(v, &res)
+			ctx = context.WithValue(ctx, goahttp.ContentTypeKey, "application/vnd.err.internal_server_error")
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreateInternalServerErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
 
 // EncodeFetchListResponse returns an encoder for responses returned by the
 // invoices fetch list endpoint.
@@ -109,6 +206,7 @@ func EncodeFetchListError(encoder func(context.Context, http.ResponseWriter) goa
 // *InvoiceResponse from a value of type *invoices.Invoice.
 func marshalInvoicesInvoiceToInvoiceResponse(v *invoices.Invoice) *InvoiceResponse {
 	res := &InvoiceResponse{
+		ClientID:           v.ClientID,
 		IssueDate:          v.IssueDate,
 		PaymentAmount:      v.PaymentAmount,
 		Commission:         v.Commission,
