@@ -1,4 +1,4 @@
-package model
+package company
 
 // Company : 企業ドメインモデル
 type Company struct {

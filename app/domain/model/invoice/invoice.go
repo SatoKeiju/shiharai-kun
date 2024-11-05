@@ -1,4 +1,4 @@
-package model
+package invoice
 
 // Invoice : 請求書ドメインモデル
 // TODO: プライベートフィールドにしてゲッター経由でのみ取得できるようにする
