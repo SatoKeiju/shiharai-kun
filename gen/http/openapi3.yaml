@@ -51,7 +51,7 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/InvoiceGo'
+                                    $ref: '#/components/schemas/Invoice'
                                 example:
                                     - billing_amount: 10440
                                       commission: 400
@@ -139,7 +139,7 @@ components:
                 message: サーバーエラー
             required:
                 - message
-        InvoiceGo:
+        Invoice:
             type: object
             properties:
                 billing_amount:

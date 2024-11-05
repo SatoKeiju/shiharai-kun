@@ -42,7 +42,7 @@ paths:
                     schema:
                         type: array
                         items:
-                            $ref: '#/definitions/InvoiceGo'
+                            $ref: '#/definitions/Invoice'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -78,8 +78,8 @@ definitions:
             message: サーバーエラー
         required:
             - message
-    InvoiceGo:
-        title: InvoiceGo
+    Invoice:
+        title: Invoice
         type: object
         properties:
             billing_amount:

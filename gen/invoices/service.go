@@ -14,7 +14,7 @@ import (
 // invoice.go service
 type Service interface {
 	// FetchList implements fetch list.
-	FetchList(context.Context, *FetchListPayload) (res []*InvoiceGo, err error)
+	FetchList(context.Context, *FetchListPayload) (res []*Invoice, err error)
 }
 
 // APIName is the name of the API as defined in the design.
@@ -54,7 +54,7 @@ type FetchListPayload struct {
 	ToDate string
 }
 
-type InvoiceGo struct {
+type Invoice struct {
 	// 発行日
 	IssueDate string
 	// 支払金額
